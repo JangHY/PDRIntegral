@@ -29,9 +29,8 @@ public class MainActivity extends Activity {
     TextView ax, ay, az;
     FileTest mTextFileManager;
 
-    float[] gravity_data = new float[3];
-    float[] accel_data = new float[3];
-    final float alpha = (float)0.8;
+    float[] gravity = new float[3];
+    float[] linear_acceleration = new float[3];
 
 
     private final int MY_PERMISSION_REQUEST_STORAGE = 100;
@@ -96,18 +95,26 @@ public class MainActivity extends Activity {
 
 
     private class accListener implements SensorEventListener {
-        public void onSensorChanged(SensorEvent event) {  // 가속도 센서 값이 바뀔때마다 호출됨
-            gravity_data[0] = alpha * gravity_data[0] + (1 - alpha) * event.values[0]; //먼저 중력데이터를 계산함
-            gravity_data[1] = alpha * gravity_data[1] + (1 - alpha) * event.values[1];
-            gravity_data[2] = alpha * gravity_data[2] + (1 - alpha) * event.values[2];
+        public void onSensorChanged(SensorEvent event) {  // 가속도 센서 값이 "바뀔 때"마다 호출됨
+           //https://developer.android.com/reference/android/hardware/SensorEvent.html#values
 
-            accel_data[0] = event.values[0] - gravity_data[0]; // 순수 가속도센서값에 중력값을 빼줌
-            accel_data[1] = event.values[1] - gravity_data[1]; // 아니면 약 9.81 어쩌고 하는값이 더해짐
-            accel_data[2] = event.values[2] - gravity_data[2];
+            // alpha is calculated as t / (t + dT)
+            // with t, the low-pass filter's time-constant
+            // and dT, the event delivery rate
 
-            ax.setText(Float.toString(accel_data[0]));
-            ay.setText(Float.toString(accel_data[1]));
-            az.setText(Float.toString(accel_data[2]));
+            final float alpha = (float)0.8;
+
+            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0]; //먼저 중력데이터를 계산함
+            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+            linear_acceleration[0] = event.values[0] - gravity[0]; // 순수 가속도센서값에 중력값을 빼줌
+            linear_acceleration[1] = event.values[1] - gravity[1]; // 아니면 약 9.81 어쩌고 하는값이 더해짐
+            linear_acceleration[2] = event.values[2] - gravity[2];
+
+            ax.setText(Float.toString(linear_acceleration[0]));
+            ay.setText(Float.toString(linear_acceleration[1]));
+            az.setText(Float.toString(linear_acceleration[2]));
             Log.i("SENSOR", "Acceleration changed.");
             Log.i("SENSOR", "  Acceleration X: " + event.values[0]
                     + ", Acceleration Y: " + event.values[1]
