@@ -38,15 +38,54 @@ public class FileTest {
         Date date = new Date();
         String strDate = dateFormat.format(date);
         */
+
         String path = Environment.getExternalStorageDirectory()+"/";
         String fileName = "sensor_original.csv";
+
+        fileOriginal = new File(path + fileName);
+        if (fileOriginal.exists()) {
+            fileOriginal.delete();
+        }
         fileOriginal = new File(path + fileName);
 
         fileName = "sensor_gravity.csv";
         fileGravity = new File(path + fileName);
+        if (fileGravity.exists()) {
+            fileGravity.delete();
+        }
+        fileGravity = new File(path + fileName);
 
         fileName = "sensor_kalman.csv";
         fileKalman = new File(path + fileName);
+        if (fileKalman.exists()) {
+            fileKalman.delete();
+        }
+        fileKalman = new File(path + fileName);
+
+        try{
+            writeOriginal = new FileWriter(fileOriginal,true);
+            outOriginal = new PrintWriter(writeOriginal);
+            outOriginal.print("originData");
+            outOriginal.print(",");
+            outOriginal.close();
+
+            writeGravity = new FileWriter(fileGravity,true);
+            outGravity = new PrintWriter(writeGravity);
+            outGravity.print("gravityData");
+            outGravity.print(",");
+            outGravity.close();
+
+            writeKalman = new FileWriter(fileKalman,true);
+            outKalman = new PrintWriter(writeKalman);
+            outKalman.print("kalmanData");
+            outKalman.print(",");
+            outKalman.close();
+
+            Log.d("finish","저장완료");
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void save(String originData, String gravityData, String kalmanData){
@@ -65,7 +104,7 @@ public class FileTest {
 
             writeKalman = new FileWriter(fileKalman,true);
             outKalman = new PrintWriter(writeKalman);
-            outKalman.print(originData);
+            outKalman.print(kalmanData);
             outKalman.print(",");
             outKalman.close();
 
