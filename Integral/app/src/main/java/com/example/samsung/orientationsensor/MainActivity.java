@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
 
     public class Customhandler1 extends android.os.Handler{
         @Override
-        public void handleMessage(Message msg) {//0.001초마다 센서 값 받아와서 소팅하여 리스트에 넣기.
+        public void handleMessage(Message msg) {//0.002초마다 가속도센서 값 받아와서 소팅하여 리스트에 넣기.
             super.handleMessage(msg);
             //이곳에 실행할 작업내용을 넣습니다. (메인 스레드 작업이 가능!)
           //  Toast.makeText(getApplication(),"1초 마다"+accValue[0].size()+"  "+accValue[1].size()+"  "+accValue[2].size()+"  ",Toast.LENGTH_LONG).show();
@@ -244,7 +244,7 @@ public class MainActivity extends Activity {
 
     public class Customhandler2 extends android.os.Handler{
         @Override
-        public void handleMessage(Message msg) {//0.01초마다 리스트에 있는 값들 필터링 해서 칼만필터로 보내기
+        public void handleMessage(Message msg) {//0.02초마다 리스트에 있는 값들 필터링 해서 칼만필터로 보내기
             super.handleMessage(msg);
             //이곳에 실행할 작업내용을 넣습니다. (메인 스레드 작업이 가능!)
             //  Toast.makeText(getApplication(),"1초 마다"+accValue[0].size()+"  "+accValue[1].size()+"  "+accValue[2].size()+"  ",Toast.LENGTH_LONG).show();
