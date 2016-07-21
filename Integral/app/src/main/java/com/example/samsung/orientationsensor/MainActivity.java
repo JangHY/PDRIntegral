@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
     TextView ax, ay, az;
     TextView gx, gy, gz;
     TextView kx, ky, kz;
+    TextView distance;
     FileTest mTextFileManager;
 
     float[] gravity = new float[3];
@@ -46,6 +47,10 @@ public class MainActivity extends Activity {
     ArrayList[] accValue = new ArrayList[3];
 
     private final int MY_PERMISSION_REQUEST_STORAGE = 100;
+
+    double velocity = 0;
+    double dist = 0;
+    double time = 0.02;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +74,8 @@ public class MainActivity extends Activity {
         ky = (TextView)findViewById(R.id.kalmanFilter_y);
         kz = (TextView)findViewById(R.id.kalmanFilter_z);
         //mTextFileManager.save("짱이당");
+
+        distance = (TextView)findViewById(R.id.distance);
 
         accValue[0] = new ArrayList();
         accValue[1] = new ArrayList();
@@ -271,9 +278,15 @@ public class MainActivity extends Activity {
                 value2 = value2 + (float)accValue[2].get(i);
             }
 
-            value0 = value0 / accValue[0].size();//평균 값 구하기
-            value1 = value0 / accValue[1].size();
-            value2 = value0 / accValue[2].size();
+            Log.d("size0","size0 = "+accValue[0].size());
+            Log.d("size1","size1 = "+accValue[1].size());
+            Log.d("size2","size2 = "+accValue[2].size());
+
+            if(accValue[0].size()!=0 && accValue[1].size()!=0 && accValue[2].size()!=0) {
+                value0 = value0 / accValue[0].size();//평균 값 구하기
+                value1 = value0 / accValue[1].size();
+                value2 = value0 / accValue[2].size();
+            }
 
             average[0] = value0;
             average[1] = value1;
@@ -313,11 +326,30 @@ public class MainActivity extends Activity {
              *
              * *******************************************************************************/
 
+            double distance_result = integral(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2]));
+
+            distance.setText(Double.toString(distance_result));
+            //distance.setText(Double.toString(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2])));
+
 
             accValue[0].clear();
             accValue[1].clear();
             accValue[2].clear();
+
         }
+
+        private double calData(double x, double y, double z){
+            double temp = (x*x)+(y*y)+(z*z);
+            return Math.sqrt(temp);
+        }
+
+        public double integral(double data){
+            velocity = velocity + time * data;
+            dist = dist + velocity * time;
+
+            return dist;
+        }
+
     }
 }
 
