@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
     double velocity = 0;
     double dist = 0;
     double time = 0.02;
+    double distance_result=0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -326,10 +327,13 @@ public class MainActivity extends Activity {
              *
              *
              * *******************************************************************************/
-
-            double distance_result = integral(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2]));
-
-            distance.setText(Double.toString(distance_result));
+            if((kalmanFilter_acceleration[0]<0.1)&&(kalmanFilter_acceleration[1]<0.1)&&(kalmanFilter_acceleration[2]<0.1)){
+                distance_result=0;
+            }
+            //double distance_result = integral(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2]));
+            else
+                distance_result=distance_result+integral(kalmanFilter_acceleration[0])+integral(kalmanFilter_acceleration[1])+integral(kalmanFilter_acceleration[2]);
+            distance.setText(Double.toString(Math.abs(distance_result)));
             //distance.setText(Double.toString(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2])));
 
 
@@ -345,12 +349,11 @@ public class MainActivity extends Activity {
         }
 
         public double integral(double data){
-            velocity = velocity + time * data;
-            dist = dist + velocity * time;
-
+            //velocity = velocity + time * data;
+            //dist = dist + velocity * time;
+            dist=time*time*data;
             return dist;
         }
-
     }
 }
 
