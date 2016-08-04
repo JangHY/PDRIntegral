@@ -29,7 +29,6 @@ public class MainActivity extends Activity {
     TextView kx, ky, kz;
     TextView distance;
 //    FileTest mTextFileManager;
-
     float[] gravity = new float[3];
     float[] linear_acceleration = new float[3];
     float[] average = new float[3];
@@ -48,11 +47,13 @@ public class MainActivity extends Activity {
 
     private final int MY_PERMISSION_REQUEST_STORAGE = 100;
 
-    double velocity = 0;
+    double velocity,velocityX,velocityY,velocityZ = 0;
     double dist = 0;
     double time = 0.02;
     double distance_result=0;
-
+    private double lastX;
+    private double lastY;
+    private double lastZ;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +106,7 @@ public class MainActivity extends Activity {
         };
 
         Timer timer1 = new Timer();
-        timer1.schedule(timerTask1,0,2);//delay : 0, 주기 : 0.002초
+        timer1.schedule(timerTask1,2000,2);//delay : 0, 주기 : 0.002초
         //timer.schedule(timer, delayTime, period)
         // delay:처음에 딜레이 되는 시간  period:주기(ms) 1초->1000   1->0.001초
         customHandler1 = new Customhandler1();
@@ -119,7 +120,7 @@ public class MainActivity extends Activity {
         };
 
         Timer timer2 = new Timer();
-        timer2.schedule(timerTask2,18,20);//delay : 0, 주기 : 0.02초
+        timer2.schedule(timerTask2,2018,20);//delay : 0, 주기 : 0.02초
         //timer.schedule(timer, delayTime, period)
         // delay:처음에 딜레이 되는 시간  period:주기(ms) 1초->1000   1->0.001초
         customHandler2 = new Customhandler2();
@@ -151,8 +152,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -168,7 +167,10 @@ public class MainActivity extends Activity {
     }
 
 
+
     private class accListener implements SensorEventListener {
+
+
         public void onSensorChanged(SensorEvent event) {  // 가속도 센서 값이 "바뀔 때"마다 호출됨.
            // 1초에 40번 정도 불러짐 -> 0.2초면 8번 정도 -> 가장 큰 값, 작은 값 뺴고 6개 평균내서 칼만필터 적용
            //https://developer.android.com/reference/android/hardware/SensorEvent.html#values
@@ -286,8 +288,8 @@ public class MainActivity extends Activity {
 
             if(accValue[0].size()!=0 && accValue[1].size()!=0 && accValue[2].size()!=0) {
                 value0 = value0 / accValue[0].size();//평균 값 구하기
-                value1 = value0 / accValue[1].size();
-                value2 = value0 / accValue[2].size();
+                value1 = value1 / accValue[1].size();
+                value2 = value2 / accValue[2].size();
             }
 
             average[0] = value0;
@@ -327,15 +329,27 @@ public class MainActivity extends Activity {
              *
              *
              * *******************************************************************************/
-            if((kalmanFilter_acceleration[0]<0.1)&&(kalmanFilter_acceleration[1]<0.1)&&(kalmanFilter_acceleration[2]<0.1)){
-                distance_result=0;
+
+            if(!checkMove(kalmanFilter_acceleration[0],kalmanFilter_acceleration[1],kalmanFilter_acceleration[2])){
+
             }
             //double distance_result = integral(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2]));
-            else
-                distance_result=distance_result+integral(kalmanFilter_acceleration[0])+integral(kalmanFilter_acceleration[1])+integral(kalmanFilter_acceleration[2]);
+            else {
+                velocityX=time*kalmanFilter_acceleration[0];
+                velocityY=time*kalmanFilter_acceleration[1];
+                velocityZ=time*kalmanFilter_acceleration[2];
+
+                velocity=Math.sqrt(velocityX*velocityX+velocityY*velocityY+velocityZ*velocityZ);
+                //distance_result=distance_result+(velocity*velocity)/2*kalmanFilter_acceleration[1];
+                //distance_result=distance_result+integral(kalmanFilter_acceleration[0])+integral(kalmanFilter_acceleration[1])+integral(kalmanFilter_acceleration[2]);
+                distance_result+=velocity*time;
+            }
             distance.setText(Double.toString(Math.abs(distance_result)));
             //distance.setText(Double.toString(calData(kalmanFilter_acceleration[0], kalmanFilter_acceleration[1], kalmanFilter_acceleration[2])));
 
+            lastX=kalmanFilter_acceleration[0];
+            lastY=kalmanFilter_acceleration[1];
+            lastZ=kalmanFilter_acceleration[2];
 
             accValue[0].clear();
             accValue[1].clear();
@@ -353,6 +367,13 @@ public class MainActivity extends Activity {
             //dist = dist + velocity * time;
             dist=time*time*data;
             return dist;
+        }
+
+        public boolean checkMove(double x, double y, double z){
+            double speed=Math.abs(x+y+z-lastX-lastY-lastZ)/time;
+            if(speed > 10)
+                return true;
+            return false;
         }
     }
 }
