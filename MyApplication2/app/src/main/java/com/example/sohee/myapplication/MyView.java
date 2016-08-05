@@ -227,7 +227,6 @@ public class MyView extends android.view.SurfaceView implements SurfaceHolder.Ca
                 init = true;
             }
         }
-
     }
     public Bitmap loadBitmap(String url) {
         URL newurl = null;
