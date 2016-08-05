@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
         };
 
         Timer timer1 = new Timer();
-        timer1.schedule(timerTask1,2000,2);//delay : 0, 주기 : 0.002초
+        timer1.schedule(timerTask1,0,2);//delay : 0, 주기 : 0.002초
         //timer.schedule(timer, delayTime, period)
         // delay:처음에 딜레이 되는 시간  period:주기(ms) 1초->1000   1->0.001초
         customHandler1 = new Customhandler1();
@@ -144,7 +144,7 @@ public class MainActivity extends Activity {
         };
 
         Timer timer2 = new Timer();
-        timer2.schedule(timerTask2,2018,20);//delay : 0, 주기 : 0.02초
+        timer2.schedule(timerTask2,18,20);//delay : 0, 주기 : 0.02초
         //timer.schedule(timer, delayTime, period)
         // delay:처음에 딜레이 되는 시간  period:주기(ms) 1초->1000   1->0.001초
         customHandler2 = new Customhandler2();
