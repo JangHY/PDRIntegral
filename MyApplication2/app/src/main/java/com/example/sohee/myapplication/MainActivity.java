@@ -9,16 +9,23 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
+    private MyView mv;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myView vm = new myView(this);
-        setContentView(vm);
-    }
+        setContentView(R.layout.surfaceview);//surfaceview.xml 연결
 
+        mv = new MyView(this);
+        LinearLayout layout = (LinearLayout) findViewById(R.id.mapLayout);
+
+        layout.addView(mv);
+    }
+/*
     protected class myView extends View {
 
         public myView(Context context) {
@@ -66,5 +73,5 @@ public class MainActivity extends Activity {
             canvas.drawTextOnPath("curved Text", path, 0, 0, pnt);
         }
 
-    }
+    }*/
 }
