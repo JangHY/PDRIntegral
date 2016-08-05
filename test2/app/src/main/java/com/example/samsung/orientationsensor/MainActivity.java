@@ -23,10 +23,18 @@ import java.util.Collections;
 public class MainActivity extends Activity {
     SensorManager sm;
     SensorEventListener accL;
+    SensorEventListener oriL;
+    SensorEventListener pressL;
+    Sensor pressSensor;
     Sensor accSensor;//단위 : m/s^2
+    Sensor oriSensor;
+
     TextView ax, ay, az;
     TextView gx, gy, gz;
     TextView kx, ky, kz;
+    TextView ox, oy, oz;
+    TextView px, py, pz, pAltitude;
+
     TextView distance;
 //    FileTest mTextFileManager;
     float[] gravity = new float[3];
@@ -62,11 +70,27 @@ public class MainActivity extends Activity {
 //        mTextFileManager = new FileTest();
 
         sm = (SensorManager)getSystemService(SENSOR_SERVICE);    // SensorManager 인스턴스를 가져옴
+        oriSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);    // 방향 센서
         accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);    // 가속도 센서
+        pressSensor = sm.getDefaultSensor(Sensor.TYPE_PRESSURE);    //기압센서
+
+        oriL = new oriListener();        // 방향 센서 리스너 인스턴스
         accL = new accListener();       // 가속도 센서 리스너 인스턴스
+        pressL = new pressListener();       // 기압 센서 리스너 인스턴스
+
         ax = (TextView)findViewById(R.id.acc_x);
         ay = (TextView)findViewById(R.id.acc_y);
         az = (TextView)findViewById(R.id.acc_z);
+
+        ox = (TextView)findViewById(R.id.ori_x);
+        oy = (TextView)findViewById(R.id.ori_y);
+        oz = (TextView)findViewById(R.id.ori_z);
+
+        px = (TextView)findViewById(R.id.press_x);
+        py = (TextView)findViewById(R.id.press_y);
+        pz = (TextView)findViewById(R.id.press_z);
+        pAltitude = (TextView)findViewById(R.id.acc_altitude);
+
 
         gx = (TextView)findViewById(R.id.subGrvAcc_x);
         gy = (TextView)findViewById(R.id.subGrvAcc_y);
@@ -157,6 +181,9 @@ public class MainActivity extends Activity {
         super.onResume();
 
         sm.registerListener(accL, accSensor, SensorManager.SENSOR_DELAY_NORMAL);    // 가속도 센서 리스너 오브젝트를 등록
+
+        sm.registerListener(oriL, oriSensor, SensorManager.SENSOR_DELAY_NORMAL);    // 방향 센서 리스너 오브젝트를 등록
+        sm.registerListener(pressL, pressSensor, SensorManager.SENSOR_DELAY_NORMAL);    // 기압 센서 리스너 오브젝트를 등록
     }
 
     @Override
@@ -164,6 +191,8 @@ public class MainActivity extends Activity {
         super.onPause();
 
         sm.unregisterListener(accL);    // unregister orientation listener
+        sm.unregisterListener(accL);    // unregister orientation listener
+        sm.unregisterListener(pressL);    // unregister press listener
     }
 
 
@@ -222,6 +251,44 @@ public class MainActivity extends Activity {
         }
     }
 
+    private class oriListener implements SensorEventListener {
+        public void onSensorChanged(SensorEvent event) {  // 방향 센서 값이 바뀔때마다 호출됨
+            ox.setText(Float.toString(event.values[0]));    //방위각   0=북쪽, 90=동쪽, 180=남쪽, 270=서쪽
+            //기기를 수평으로 두었을 때 기기의 머리부분이 어느방향을 가리키고 있는가.
+            oy.setText(Float.toString(event.values[1]));    //경사도 : 기기의 수직 기울기
+            //기기의 머리부분과 아래부분이 수평을 이룰 때 0값을 가지며 머리부분의 높이가 높아지면 수치값이 감소한다
+            //머리부분의 높이가 낮아지면 수치값이 증가한다.
+            oz.setText(Float.toString(event.values[2]));    //좌우회전 : 기기의 수평 기울기
+            //화면이 하늘을 향하고 있을 때 기기의 좌, 우 부분이 수평이면 0
+            //기기의 좌측위치가 높아지면 증가, 우측 위치가 높아지면 감소
+            Log.i("SENSOR", "Orientation changed.");
+            Log.i("SENSOR", "  Orientation X: " + event.values[0]
+                    + ", Orientation Y: " + event.values[1]
+                    + ", Orientation Z: " + event.values[2]);
+        }
+
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    }
+
+    private class pressListener implements SensorEventListener {
+        public void onSensorChanged(SensorEvent event) {  //기압 센서 값이 바뀔때마다 호출됨
+            px.setText(Float.toString(event.values[0]));    //values[0] : 대기압(Atmospheric pressure)
+            py.setText(Float.toString(event.values[1]));    //values[1] : 고도(Altitude)
+            pz.setText(Float.toString(event.values[2]));
+
+            Log.i("SENSOR", "Pressure changed.");
+            Log.i("SENSOR", "Pressure X: " + event.values[0] + ", Pressure Y: " + event.values[1] + ", Pressure Z: " + event.values[2]);
+
+            float altitude = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, event.values[0]);
+            System.out.println("altitude = " + altitude);
+            pAltitude.setText(Float.toString(altitude));
+        }
+
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    }
 
     public class Customhandler1 extends android.os.Handler{
         @Override
